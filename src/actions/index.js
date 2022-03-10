@@ -1,18 +1,11 @@
-// actions do estado global
-import getToken from '../services/gravatarAPI';
+import { getToken } from '../services/triviaAPI';
 
-export const ADD_NAME = 'ADD_NAME';
+export const ADD_DATA = 'ADD_DATA';
 
-export const saveName = (name) => ({
-  type: ADD_NAME,
+export const saveName = (name, email) => ({
+  type: ADD_DATA,
   payload: name,
-});
-
-export const ADD_EMAIL = 'ADD_EMAIL';
-
-export const saveEmail = (email) => ({
-  type: ADD_EMAIL,
-  payload: email,
+  email,
 });
 
 // actions para lidar com a requisição à API
