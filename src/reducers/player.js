@@ -1,4 +1,4 @@
-import { ADD_PLAYER } from '../actions';
+import { ADD_EMAIL, ADD_NAME } from '../actions';
 
 const INITIAL_STATE = {
   name: '', // nome-da-pessoa,
@@ -9,10 +9,15 @@ const INITIAL_STATE = {
 
 function player(state = INITIAL_STATE, action) {
   switch (action.type) {
-  case ADD_PLAYER: // corrigir
+  case ADD_NAME: // corrigir
     return {
       ...state,
-      email: action.payload,
+      name: action.payload,
+    };
+  case ADD_EMAIL: // corrigir
+    return {
+      ...state,
+      gravatarEmail: action.payload,
     };
   default:
     return state;

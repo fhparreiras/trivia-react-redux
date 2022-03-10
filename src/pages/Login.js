@@ -63,7 +63,7 @@ class Login extends React.Component {
             disabled={ isButtonDisabled }
             onClick={ this.onButtonClick }
           >
-            Jogar
+            Play
           </button>
         </form>
       </header>
