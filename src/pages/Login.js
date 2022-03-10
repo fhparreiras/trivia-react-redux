@@ -1,4 +1,5 @@
 import React from 'react';
+// import PropTypes from 'prop-types';
 // import md5 from 'crypto-js/md5'; importacao do md5 para transformar email em hash
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -31,7 +32,6 @@ class Login extends React.Component {
   }
 
   handleButtonClick = async (event) => {
-    const { fetchToken } = this.props;
     event.preventDefault();
     await fetchToken();
     this.setState({
