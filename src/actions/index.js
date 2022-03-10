@@ -1,0 +1,1 @@
+// actions do estado global
