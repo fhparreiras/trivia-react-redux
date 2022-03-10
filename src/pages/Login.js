@@ -1,5 +1,5 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 // import md5 from 'crypto-js/md5'; importacao do md5 para transformar email em hash
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -31,9 +31,9 @@ class Login extends React.Component {
       : this.setState({ isButtonDisabled: true });
   }
 
-  handleButtonClick = async (event) => {
-    event.preventDefault();
-    await fetchToken();
+  handleButtonClick = async () => {
+    const { fetchDispatch } = this.props;
+    await fetchDispatch();
     this.setState({
       isLogin: true,
     });
@@ -41,6 +41,7 @@ class Login extends React.Component {
 
   render() {
     const { inputEmail, inputName, isButtonDisabled, isLogin } = this.state;
+    const { history } = this.props;
     // const { fetchToken } = this.props;
     // console.log(md5('fhparreiras@gmail.com').toString()); comando para transformar o email em hash
     // https://www.gravatar.com/avatar/${hash-gerada} endpoint para transformar o link em imagem
@@ -75,13 +76,21 @@ class Login extends React.Component {
             </label>
           </span>
           <button
-            type="submit"
+            type="button"
             className="btn-login"
             data-testid="btn-play"
             disabled={ isButtonDisabled }
             onClick={ this.handleButtonClick }
           >
             Play
+          </button>
+          <button
+            type="button"
+            className="btn-settings"
+            data-testid="btn-settings"
+            onClick={ () => history.push('/configuracoes') }
+          >
+            Settings
           </button>
           { isLogin && <Redirect to="/game" />}
         </form>
@@ -90,11 +99,16 @@ class Login extends React.Component {
   }
 }
 
+Login.propTypes = {
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
+  fetchDispatch: PropTypes.func.isRequired,
+};
+
 const mapStateToProps = (state) => ({
   token: state.token,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  fetchToken: () => dispatch(fetchToken()) });
+  fetchDispatch: () => dispatch(fetchToken()) });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
