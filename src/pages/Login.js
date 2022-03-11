@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-// import md5 from 'crypto-js/md5'; importacao do md5 para transformar email em hash
+// import md5 from 'crypto-js/md5';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { fetchToken } from '../actions';
+import { fetchToken, saveData } from '../actions';
 import logo from '../trivia.png';
 import '../App.css';
 
@@ -13,6 +13,7 @@ class Login extends React.Component {
     inputEmail: '',
     isButtonDisabled: true,
     isLogin: false,
+    // gravatarHref: '',
   }
 
   handleChange = (event) => {
@@ -31,12 +32,28 @@ class Login extends React.Component {
       : this.setState({ isButtonDisabled: true });
   }
 
+  // fetchGravataImg = () => async () => {
+  //   const { gravatarEmail } = this.props;
+  //   const hash = md5(gravatarEmail).toString();
+  //   console.log('Entrou na fetchimg');
+  //   const url = `https://www.gravatar.com/avatar/${hash}`;
+  //   const response = await fetch(url);
+  //   const result = await response.json();
+  //   console.log('resultado gravatar', result);
+  //   this.setState({ gravatarHref: result });
+  // };
+
   handleButtonClick = async () => {
-    const { fetchDispatch } = this.props;
+    const { fetchDispatch, dispatchData } = this.props;
+    const { inputEmail, inputName } = this.state;
+    // const payload = { 'inputName, inputEmail' };
     await fetchDispatch();
     this.setState({
       isLogin: true,
     });
+    const payload = { name: inputName, email: inputEmail };
+    dispatchData(payload);
+    // fetchGravataImg();
   }
 
   render() {
@@ -102,6 +119,8 @@ class Login extends React.Component {
 Login.propTypes = {
   history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   fetchDispatch: PropTypes.func.isRequired,
+  dispatchData: PropTypes.func.isRequired,
+  // gravatarEmail: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -109,6 +128,9 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  fetchDispatch: () => dispatch(fetchToken()) });
+  fetchDispatch: () => dispatch(fetchToken()),
+  // dispatchData: () => dispatch(saveData('inputName', 'inputEmail')),
+  dispatchData: (payload) => dispatch(saveData(payload)),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

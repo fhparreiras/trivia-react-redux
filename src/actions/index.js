@@ -2,10 +2,9 @@ import { getToken } from '../services/triviaAPI';
 
 export const ADD_DATA = 'ADD_DATA';
 
-export const saveName = (name, email) => ({
+export const saveData = (payload) => ({
   type: ADD_DATA,
-  payload: name,
-  email,
+  payload,
 });
 
 // actions para lidar com a requisição à API
