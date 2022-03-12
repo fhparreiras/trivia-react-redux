@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import '../App.css';
 import PropTypes from 'prop-types';
 import Header from '../components/Header';
+import { fetchToken } from '../actions';
 
 class Game extends React.Component {
   constructor() {
@@ -14,6 +15,13 @@ class Game extends React.Component {
 state = {
   arrayOfQuestions: [],
   isLoading: false,
+}
+
+reloadToken = async () => { // Valida o token caso expirado;
+  console.log('estou na reloadToken');
+  const { fetchDispatch } = this.props;
+  await fetchDispatch();
+  this.fetchQuestion();
 }
 
 shuffle(array) { // Embaralha as alternativas;
@@ -30,7 +38,6 @@ shuffle(array) { // Embaralha as alternativas;
     [array[currentIndex], array[randomIndex]] = [
       array[randomIndex], array[currentIndex]];
   }
-  console.log(array);
   return array;
 }
 
@@ -38,6 +45,8 @@ async fetchQuestion() { // Faz requisição a API
   console.log('entrei no fetchQuestion');
   this.setState({ isLoading: true });
   const { token } = this.props;
+  console.log('Esse é o token =>', token);
+  if (token === '') this.reloadToken(); // Caso o token tenha expirado irá chamar a função para validar o token;
   const url = `https://opentdb.com/api.php?amount=5&token=${token}`;
   const response = await fetch(url);
   const questions = await response.json();
@@ -84,11 +93,13 @@ render() {
                 {question.category}
               </h2>
               <h3 data-testid="question-text">{question.question}</h3>
-              { (question.test.map((answer) => (
-                answer.type
-                  ? <h4 data-testeid="incorrect-answers">{answer.answer}</h4>
-                  : <h4 data-testeid="correct-answer">{answer.answer}</h4>
-              ))) }
+              <div data-testid="answer-options">
+                { (question.test.map((answer) => (
+                  answer.type
+                    ? <h4 data-testeid={ `wrong-answer-${index}` }>{answer.answer}</h4> // Falta adicionar o index correto em cada wrong-answer;
+                    : <h4 data-testeid="correct-answer">{answer.answer}</h4>
+                ))) }
+              </div>
             </div>
 
           ))
@@ -100,10 +111,16 @@ render() {
 
 Game.propTypes = {
   token: PropTypes.string.isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
+  fetchDispatch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   token: state.token,
 });
 
-export default connect(mapStateToProps)(Game);
+const mapDispatchToProps = (dispatch) => ({
+  fetchDispatch: () => dispatch(fetchToken()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Game);
