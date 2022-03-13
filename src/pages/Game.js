@@ -6,43 +6,19 @@ import Header from '../components/Header';
 import { fetchToken } from '../actions';
 
 class Game extends React.Component {
-  constructor() {
-    super();
-    this.fetchQuestion = this.fetchQuestion.bind(this);
-    this.shuffle = this.shuffle.bind(this);
-    this.reloadToken = this.reloadToken.bind(this);
+  state = {
+    arrayOfQuestions: [],
+    isLoading: true,
+    questionsIndex: 0,
+  };
+
+  componentDidMount() {
+    const { questionsIndex } = this.state;
+    console.log(questionsIndex);
+    this.fetchQuestion();
   }
 
-state = {
-  arrayOfQuestions: [],
-  isLoading: false,
-}
-
-reloadToken = async () => { // Valida o token caso expirado;
-  console.log('estou na reloadToken');
-  const { fetchDispatch } = this.props;
-  await fetchDispatch();
-  await this.fetchQuestion();
-}
-
-shuffle(array) { // Embaralha as alternativas;
-  let currentIndex = array.length;
-  let randomIndex;
-
-  // While there remain elements to shuffle...
-  while (currentIndex !== 0) {
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex], array[currentIndex]];
-  }
-  return array;
-}
-
-async fetchQuestion() { // Faz requisição a API
+fetchQuestion = async () => { // Faz requisição a API
   console.log('entrei no fetchQuestion');
   this.setState({ isLoading: true });
   const { token } = this.props;
@@ -55,7 +31,8 @@ async fetchQuestion() { // Faz requisição a API
   const responseCode = questions.response_code;
   console.log('esse e o response code', responseCode);
 
-  if (responseCode === 3) {
+  const magicNumber = 3;
+  if (responseCode === magicNumber) {
     return this.reloadToken();
     // url = `https://opentdb.com/api.php?amount=5&token=${token}`;
     // response = await fetch(url);
@@ -79,13 +56,38 @@ async fetchQuestion() { // Faz requisição a API
     this.shuffle(answersWrongs);
     question.test = answersWrongs;
   });
-
+  console.log('Estou na fetchQuestions :', questions.results);
   this.setState({ arrayOfQuestions: questions.results,
     isLoading: false });
 }
 
+reloadToken = async () => { // Valida o token caso expirado;
+  console.log('estou na reloadToken');
+  const { fetchDispatch } = this.props;
+  await fetchDispatch();
+  await this.fetchQuestion();
+}
+
+shuffle = (array) => { // Embaralha as alternativas;
+  let currentIndex = array.length;
+  let randomIndex;
+
+  // While para enquanto ainda houver elementos para embaralhar...
+  while (currentIndex !== 0) {
+    // Pega um elemento ainda remanescente...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // Troca com o elemento atual
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+  return array;
+}
+
 render() {
-  const { arrayOfQuestions, isLoading } = this.state;
+  const { arrayOfQuestions, isLoading, questionsIndex } = this.state;
+  const question = arrayOfQuestions;
   return (
     <div>
       <Header />
@@ -102,22 +104,50 @@ render() {
       {
         isLoading
           ? <h2>Carregando</h2>
-          : arrayOfQuestions.map((question, index) => (
-            <div key={ index }>
+          // : arrayOfQuestions.map((question, index) => (
+          //   <div key={ index }>
+          //     <h2 data-testid="question-category">
+          //       {question.category}
+          //     </h2>
+          //     <h3 data-testid="question-text">{question.question}</h3>
+          //     <div data-testid="answer-options">
+          //       { (question.test.map((answer) => (
+          //         answer.type
+          //           ? <h4 data-testeid={ `wrong-answer-${index}` }>{answer.answer}</h4> // Falta adicionar o index correto em cada wrong-answer;
+          //           : <h4 data-testeid="correct-answer">{answer.answer}</h4>
+          //       ))) }
+          //     </div>
+          //   </div>
+          // ))
+          : (
+            <div>
               <h2 data-testid="question-category">
-                {question.category}
+                {question[questionsIndex].category}
               </h2>
-              <h3 data-testid="question-text">{question.question}</h3>
+              <h3 data-testid="question-text">{question[questionsIndex].question}</h3>
               <div data-testid="answer-options">
-                { (question.test.map((answer) => (
+                { (question[questionsIndex].test.map((answer, index) => (
                   answer.type
-                    ? <h4 data-testeid={ `wrong-answer-${index}` }>{answer.answer}</h4> // Falta adicionar o index correto em cada wrong-answer;
-                    : <h4 data-testeid="correct-answer">{answer.answer}</h4>
+                    ? (
+                      <button
+                        type="button"
+                        data-testid={ `wrong-answer-${[index]}` }
+                      >
+                        {answer.answer}
+                      </button>
+                    )
+                    : (
+                      <button
+                        type="button"
+                        data-testid="correct-answer"
+                      >
+                        {answer.answer}
+                      </button>
+                    )
                 ))) }
               </div>
             </div>
-
-          ))
+          )
       }
     </div>
   );
