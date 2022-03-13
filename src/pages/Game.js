@@ -10,6 +10,7 @@ class Game extends React.Component {
     super();
     this.fetchQuestion = this.fetchQuestion.bind(this);
     this.shuffle = this.shuffle.bind(this);
+    this.reloadToken = this.reloadToken.bind(this);
   }
 
 state = {
@@ -21,7 +22,7 @@ reloadToken = async () => { // Valida o token caso expirado;
   console.log('estou na reloadToken');
   const { fetchDispatch } = this.props;
   await fetchDispatch();
-  this.fetchQuestion();
+  await this.fetchQuestion();
 }
 
 shuffle(array) { // Embaralha as alternativas;
@@ -46,10 +47,24 @@ async fetchQuestion() { // Faz requisição a API
   this.setState({ isLoading: true });
   const { token } = this.props;
   console.log('Esse é o token =>', token);
-  if (token === '') this.reloadToken(); // Caso o token tenha expirado irá chamar a função para validar o token;
+  if (token === '') return this.reloadToken(); // Caso o token tenha expirado irá chamar a função para validar o token;
   const url = `https://opentdb.com/api.php?amount=5&token=${token}`;
   const response = await fetch(url);
+  // console.log(response);
   const questions = await response.json();
+  const responseCode = questions.response_code;
+  console.log('esse e o response code', responseCode);
+
+  if (responseCode === 3) {
+    return this.reloadToken();
+    // url = `https://opentdb.com/api.php?amount=5&token=${token}`;
+    // response = await fetch(url);
+    // questions = await response.json();
+    // responseCode = questions.response_code;
+    // console.log('esse e o response code atualizado', responseCode);
+    // console.log('Esse é o token atualizado =>', token);
+  }
+  // console.log('Esse é o token atualizado =>', token);
   const listOfQuestions = questions.results;
   let answersWrongs = []; // Array com as respostas erradas;
   let answerRight = []; // Array com as respostas corretas;
