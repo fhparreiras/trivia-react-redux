@@ -23,12 +23,12 @@ class Login extends React.Component {
   }
 
   handleButton = () => {
-    const { inputEmail, inputName, isButtonDisabled } = this.state;
+    const { inputEmail, inputName } = this.state;
     const minLength = 1;
     const emailRegex = /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/;
     return inputName.length >= minLength
     && emailRegex.test(inputEmail)
-      ? this.setState({ isButtonDisabled: !isButtonDisabled })
+      ? this.setState({ isButtonDisabled: false })
       : this.setState({ isButtonDisabled: true });
   }
 
