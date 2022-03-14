@@ -6,15 +6,15 @@ import md5 from 'crypto-js/md5';
 class Header extends React.Component {
   constructor() {
     super();
-    this.state = {
-      gravatarHref: '',
-    };
+    // this.state = {
+    //   gravatarHref: '',
+    // };
     this.fetchGravataImg = this.fetchGravataImg.bind(this);
   }
 
-  componentDidMount() {
-    this.fetchGravataImg();
-  }
+  // componentDidMount() {
+  //   this.fetchGravataImg();
+  // }
 
   fetchGravataImg = () => {
     //   async fetchGravataImg() {
@@ -23,19 +23,20 @@ class Header extends React.Component {
     const url = `https://www.gravatar.com/avatar/${hash}`;
     // const response = await fetch(url);
     // const result = await response.url;
-    this.setState({ gravatarHref: url });
+    // this.setState({ gravatarHref: url });
     // return result;
+    return url;
   }
 
   render() {
     const { name, score } = this.props;
-    const { gravatarHref } = this.state;
+
     return (
       <header>
         <h1>TrybeTrivia</h1>
         <img
-          src={ gravatarHref }
-          alt={ gravatarHref }
+          src={ this.fetchGravataImg() }
+          alt={ name }
           data-testid="header-profile-picture"
         />
         <span data-testid="header-player-name">{name}</span>
