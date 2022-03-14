@@ -85,6 +85,12 @@ shuffle = (array) => { // Embaralha as alternativas;
   return array;
 }
 
+onQuestionClick = () => {
+  document.querySelector('#right').className = 'right';
+  const btnWrong = document.querySelectorAll('#wrong');
+  btnWrong.forEach((btn) => { btn.className = 'wrong'; });
+}
+
 render() {
   const { arrayOfQuestions, isLoading, questionsIndex } = this.state;
   const question = arrayOfQuestions;
@@ -132,6 +138,8 @@ render() {
                       <button
                         type="button"
                         data-testid={ `wrong-answer-${[index]}` }
+                        id="wrong"
+                        onClick={ this.onQuestionClick }
                       >
                         {answer.answer}
                       </button>
@@ -140,6 +148,8 @@ render() {
                       <button
                         type="button"
                         data-testid="correct-answer"
+                        id="right"
+                        onClick={ this.onQuestionClick }
                       >
                         {answer.answer}
                       </button>
