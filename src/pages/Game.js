@@ -10,38 +10,46 @@ class Game extends React.Component {
     arrayOfQuestions: [],
     isLoading: true,
     questionsIndex: 0,
+    isButtonDisabled: false,
+    timer: 30, // inicia o contador em 30 segundos
   };
 
   componentDidMount() {
-    const { questionsIndex } = this.state;
-    console.log(questionsIndex);
+    const { isButtonDisabled, timer } = this.state;
     this.fetchQuestion();
+    const ONE_SECOND = 1000;
+    // essa setInterval faz ser atualizado o estado do timer de 1 em 1 segundo para -1 segundo
+    setInterval(() => {
+      if (isButtonDisabled === false && timer > 0) {
+        this.setState((prevState) => ({
+          timer: prevState.timer - 1,
+        }));
+      }
+    }, ONE_SECOND);
+    const THIRTY_SECONDS = 30000;
+    // a setTimeout define 30 segundos para que, após eles, os botões das alternativas fiquem desabilitados
+    // através da atualização do estado "isButtoDisabled" para true
+    setTimeout(() => {
+      this.setState({
+        isButtonDisabled: true,
+      });
+    }, THIRTY_SECONDS);
   }
 
 fetchQuestion = async () => { // Faz requisição a API
-  console.log('entrei no fetchQuestion');
   this.setState({ isLoading: true });
   const { token } = this.props;
-  console.log('Esse é o token =>', token);
   if (token === '') return this.reloadToken(); // Caso o token tenha expirado irá chamar a função para validar o token;
   const url = `https://opentdb.com/api.php?amount=5&token=${token}`;
   const response = await fetch(url);
-  // console.log(response);
   const questions = await response.json();
   const responseCode = questions.response_code;
-  console.log('esse e o response code', responseCode);
 
   const magicNumber = 3;
   if (responseCode === magicNumber) {
     return this.reloadToken();
-    // url = `https://opentdb.com/api.php?amount=5&token=${token}`;
-    // response = await fetch(url);
-    // questions = await response.json();
-    // responseCode = questions.response_code;
-    // console.log('esse e o response code atualizado', responseCode);
-    // console.log('Esse é o token atualizado =>', token);
   }
-  // console.log('Esse é o token atualizado =>', token);
+
   const listOfQuestions = questions.results;
   let answersWrongs = []; // Array com as respostas erradas;
   let answerRight = []; // Array com as respostas corretas;
@@ -56,13 +64,11 @@ fetchQuestion = async () => { // Faz requisição a API
     this.shuffle(answersWrongs);
     question.test = answersWrongs;
   });
-  console.log('Estou na fetchQuestions :', questions.results);
   this.setState({ arrayOfQuestions: questions.results,
     isLoading: false });
 }
 
 reloadToken = async () => { // Valida o token caso expirado;
-  console.log('estou na reloadToken');
   const { fetchDispatch } = this.props;
   await fetchDispatch();
   await this.fetchQuestion();
@@ -92,39 +98,18 @@ onQuestionClick = () => {
 }
 
 render() {
-  const { arrayOfQuestions, isLoading, questionsIndex } = this.state;
+  const { arrayOfQuestions, isLoading,
+    isButtonDisabled, questionsIndex, timer } = this.state;
   const question = arrayOfQuestions;
   return (
     <div>
       <Header />
-      <span>
-        <button
-          type="button"
-          className="btn-settings"
-          data-testid="btn-settings"
-          onClick={ this.fetchQuestion }
-        >
-          Buscar perguntas
-        </button>
-      </span>
+      <h2>
+        { !isLoading && timer >= 0 ? timer : '' }
+      </h2>
       {
         isLoading
           ? <h2>Carregando</h2>
-          // : arrayOfQuestions.map((question, index) => (
-          //   <div key={ index }>
-          //     <h2 data-testid="question-category">
-          //       {question.category}
-          //     </h2>
-          //     <h3 data-testid="question-text">{question.question}</h3>
-          //     <div data-testid="answer-options">
-          //       { (question.test.map((answer) => (
-          //         answer.type
-          //           ? <h4 data-testeid={ `wrong-answer-${index}` }>{answer.answer}</h4> // Falta adicionar o index correto em cada wrong-answer;
-          //           : <h4 data-testeid="correct-answer">{answer.answer}</h4>
-          //       ))) }
-          //     </div>
-          //   </div>
-          // ))
           : (
             <div>
               <h2 data-testid="question-category">
@@ -136,20 +121,24 @@ render() {
                   answer.type
                     ? (
                       <button
+                        key={ index }
                         type="button"
                         data-testid={ `wrong-answer-${[index]}` }
                         id="wrong"
                         onClick={ this.onQuestionClick }
+                        disabled={ isButtonDisabled }
                       >
                         {answer.answer}
                       </button>
                     )
                     : (
                       <button
+                        key={ index }
                         type="button"
                         data-testid="correct-answer"
                         id="right"
                         onClick={ this.onQuestionClick }
+                        disabled={ isButtonDisabled }
                       >
                         {answer.answer}
                       </button>
