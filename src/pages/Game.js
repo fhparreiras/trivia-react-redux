@@ -13,6 +13,7 @@ class Game extends React.Component {
     questionsIndex: 0,
     isButtonDisabled: false,
     timer: 30, // inicia o contador em 30 segundos
+    isNextHidden: true,
   };
 
   componentDidMount() {
@@ -25,6 +26,7 @@ class Game extends React.Component {
     setInterval(() => {
       if (isButtonDisabled === false && timer > 0) {
         this.setState((prevState) => ({
+          isLoading: false,
           timer: prevState.timer - 1,
         }));
       }
@@ -96,6 +98,22 @@ onQuestionClick = ({ target }) => {
   document.querySelector('#right').className = 'right';
   const btnWrong = document.querySelectorAll('#wrong');
   btnWrong.forEach((btn) => { btn.className = 'wrong'; });
+  this.setState({
+    isNextHidden: false,
+  });
+}
+
+onNextClick = () => {
+  document.querySelector('#right').className = '';
+  const btnWrong = document.querySelectorAll('#wrong');
+  btnWrong.forEach((btn) => { btn.className = ''; });
+  this.setState({
+    isButtonDisabled: false,
+    isNextHidden: true,
+    isLoading: true,
+    timer: 30,
+  });
+
   const responseTime = timer;
   if (id === 'right') {
     this.userQuestionScore(responseTime, arrayOfQuestions, questionsIndex);
@@ -132,7 +150,7 @@ modifyRannking = async () => {
 }
 
 render() {
-  const { arrayOfQuestions, isLoading,
+  const { arrayOfQuestions, isLoading, isNextHidden,
     isButtonDisabled, questionsIndex, timer } = this.state;
   const question = arrayOfQuestions;
   return (
@@ -179,6 +197,16 @@ render() {
                     )
                 ))) }
               </div>
+              { !isNextHidden
+              && (
+                <button
+                  type="button"
+                  data-testid="btn-next"
+                  onClick={ this.onNextClick }
+                >
+                  Next
+                </button>
+              )}
             </div>
           )
       }
