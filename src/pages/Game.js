@@ -18,8 +18,6 @@ class Game extends React.Component {
 
   componentDidMount() {
     const { isButtonDisabled, timer } = this.state;
-    // const { name, gravatarEmail, score } = this.props;
-    // console.log('Name', name, 'gravatarEmail', gravatarEmail, 'score', score);
     this.fetchQuestion();
     const ONE_SECOND = 1000;
     // essa setInterval faz ser atualizado o estado do timer de 1 em 1 segundo para -1 segundo
@@ -101,9 +99,15 @@ onQuestionClick = ({ target }) => {
   this.setState({
     isNextHidden: false,
   });
+  const responseTime = timer;
+  if (id === 'right') {
+    this.userQuestionScore(responseTime, arrayOfQuestions, questionsIndex);
+  }
 }
 
 onNextClick = () => {
+  const { questionsIndex } = this.state;
+  const { history } = this.props;
   document.querySelector('#right').className = '';
   const btnWrong = document.querySelectorAll('#wrong');
   btnWrong.forEach((btn) => { btn.className = ''; });
@@ -113,10 +117,14 @@ onNextClick = () => {
     isLoading: true,
     timer: 30,
   });
-
-  const responseTime = timer;
-  if (id === 'right') {
-    this.userQuestionScore(responseTime, arrayOfQuestions, questionsIndex);
+  const maxLengthIndex = 4; // número máximo para o array com as perguntas;
+  if (questionsIndex < maxLengthIndex) { // Se o index < 4
+    this.setState((previousState) => ({ // Incrementa mais um e passa para próxima pergunta;
+      questionsIndex: previousState.questionsIndex + 1,
+    }));
+  } else { // Quando chega na última questão => index = 4;
+    this.setState({ questionsIndex: 0 });
+    history.push('/feedback'); // Retorna o index para zero;
   }
 }
 
