@@ -1,9 +1,15 @@
 import { getToken } from '../services/triviaAPI';
 
 export const ADD_DATA = 'ADD_DATA';
+export const ADD_DATA_SCORE = 'ADD_DATA_SCORE';
 
 export const saveData = (payload) => ({
   type: ADD_DATA,
+  payload,
+});
+
+export const saveDataSCORE = (payload) => ({
+  type: ADD_DATA_SCORE,
   payload,
 });
 
