@@ -6,7 +6,7 @@ import '../App.css';
 
 class Feedback extends React.Component {
   render() {
-    const { assertions } = this.props;
+    const { assertions, history } = this.props;
     console.log('ASSERTIONS: ', this.props);
     const magicNumber = 3;
     return (
@@ -16,6 +16,13 @@ class Feedback extends React.Component {
         <p data-testid="feedback-text">
           { assertions < magicNumber ? 'Could be better...' : 'Well Done!' }
         </p>
+        <button
+          data-testid="btn-play-again"
+          type="button"
+          onClick={ () => history.push('/') }
+        >
+          Jogar novamente
+        </button>
       </>
     );
   }
@@ -23,6 +30,7 @@ class Feedback extends React.Component {
 
 Feedback.propTypes = {
   assertions: PropTypes.number.isRequired,
+  history: PropTypes.shape({ push: PropTypes.func }).isRequired,
 };
 
 const mapStateToProps = (state) => ({
