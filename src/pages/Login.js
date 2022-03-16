@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-// import md5 from 'crypto-js/md5';
+import md5 from 'crypto-js/md5';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { fetchToken, saveData } from '../actions';
@@ -32,17 +32,6 @@ class Login extends React.Component {
       : this.setState({ isButtonDisabled: true });
   }
 
-  // fetchGravataImg = () => async () => {
-  //   const { gravatarEmail } = this.props;
-  //   const hash = md5(gravatarEmail).toString();
-  //   console.log('Entrou na fetchimg');
-  //   const url = `https://www.gravatar.com/avatar/${hash}`;
-  //   const response = await fetch(url);
-  //   const result = await response.json();
-  //   console.log('resultado gravatar', result);
-  //   this.setState({ gravatarHref: result });
-  // };
-
   handleButtonClick = async () => {
     const { fetchDispatch, dispatchData } = this.props;
     const { inputEmail, inputName } = this.state;
@@ -54,6 +43,34 @@ class Login extends React.Component {
     const payload = { name: inputName, email: inputEmail };
     dispatchData(payload);
     // fetchGravataImg();
+
+    const hash = md5(inputEmail).toString();
+    const url = `https://www.gravatar.com/avatar/${hash}`;
+    this.createRankig(url);
+  }
+
+  createRankig = (url) => {
+    const { inputName } = this.state;
+
+    console.log('entrou no ranking');
+    console.log(url);
+
+    const playerData = { name: inputName, score: 0, picture: url };
+
+    console.log(playerData);
+    console.log(JSON.parse(localStorage.getItem('ranking')));
+
+    if (localStorage.getItem('ranking') === null) {
+      console.log('entrou na criacao do ranking');
+      localStorage.setItem('ranking', JSON.stringify([playerData]));
+    } else {
+      console.log('entrou na ampliacao do ranking');
+      const localStArray = JSON.parse(localStorage.getItem('ranking'));
+      console.log(localStArray);
+      localStArray.push(playerData);
+      localStorage.setItem('ranking', JSON.stringify(localStArray));
+    }
+    console.log(JSON.parse(localStorage.getItem('ranking')));
   }
 
   render() {

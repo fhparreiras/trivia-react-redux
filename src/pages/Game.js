@@ -2,8 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import '../App.css';
 import PropTypes from 'prop-types';
+// import md5 from 'crypto-js/md5';
 import Header from '../components/Header';
-import { fetchToken } from '../actions';
+import { fetchToken, saveDataSCORE } from '../actions';
 
 class Game extends React.Component {
   state = {
@@ -16,6 +17,8 @@ class Game extends React.Component {
 
   componentDidMount() {
     const { isButtonDisabled, timer } = this.state;
+    // const { name, gravatarEmail, score } = this.props;
+    // console.log('Name', name, 'gravatarEmail', gravatarEmail, 'score', score);
     this.fetchQuestion();
     const ONE_SECOND = 1000;
     // essa setInterval faz ser atualizado o estado do timer de 1 em 1 segundo para -1 segundo
@@ -29,11 +32,7 @@ class Game extends React.Component {
     const THIRTY_SECONDS = 30000;
     // a setTimeout define 30 segundos para que, após eles, os botões das alternativas fiquem desabilitados
     // através da atualização do estado "isButtoDisabled" para true
-    setTimeout(() => {
-      this.setState({
-        isButtonDisabled: true,
-      });
-    }, THIRTY_SECONDS);
+    setTimeout(() => { this.setState({ isButtonDisabled: true }); }, THIRTY_SECONDS);
   }
 
 fetchQuestion = async () => { // Faz requisição a API
@@ -91,10 +90,41 @@ shuffle = (array) => { // Embaralha as alternativas;
   return array;
 }
 
-onQuestionClick = () => {
+onQuestionClick = ({ target }) => {
+  const { timer, arrayOfQuestions, questionsIndex } = this.state;
+  const { id } = target;
   document.querySelector('#right').className = 'right';
   const btnWrong = document.querySelectorAll('#wrong');
   btnWrong.forEach((btn) => { btn.className = 'wrong'; });
+  const responseTime = timer;
+  if (id === 'right') {
+    this.userQuestionScore(responseTime, arrayOfQuestions, questionsIndex);
+  }
+}
+
+modifyRannking(questionScore) {
+  // const { score } = this.props;
+  const localStArray = JSON.parse(localStorage.getItem('ranking'));
+  const lastEntrie = localStArray.length - 1;
+  localStArray[lastEntrie].score = questionScore;
+
+  localStorage.setItem('ranking', JSON.stringify(localStArray));
+}
+
+userQuestionScore(responseTime, arrayOfQuestions, questionsIndex) {
+  const questionDifficulty = arrayOfQuestions[questionsIndex].difficulty;
+  const questionMultiplier = { easy: 1, medium: 2, hard: 3 };
+  const MINIMUM_SCORE = 10;
+  const questionScore = MINIMUM_SCORE
+  + (responseTime * questionMultiplier[questionDifficulty]);
+
+  console.log(questionScore);
+  console.log(questionDifficulty);
+  this.modifyRannking(questionScore);
+  // dipatch que salva o score
+  const { dispatchScore } = this.props;
+  const payload = { score: questionScore };
+  dispatchScore(payload);
 }
 
 render() {
@@ -157,14 +187,22 @@ Game.propTypes = {
   token: PropTypes.string.isRequired,
   history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   fetchDispatch: PropTypes.func.isRequired,
+  dispatchScore: PropTypes.func.isRequired,
+  // gravatarEmail: PropTypes.string.isRequired,
+  // name: PropTypes.string.isRequired,
+  // score: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   token: state.token,
+  name: state.player.name,
+  gravatarEmail: state.player.gravatarEmail,
+  score: state.player.score,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   fetchDispatch: () => dispatch(fetchToken()),
+  dispatchScore: (payload) => dispatch(saveDataSCORE(payload)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Game);
