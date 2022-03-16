@@ -139,7 +139,8 @@ userQuestionScore = async (responseTime, arrayOfQuestions, questionsIndex) => {
   console.log(questionDifficulty);
 
   // dipatch que salva o score
-  const payload = { score: questionScore };
+  const ASSERTIONS_UP = 1;
+  const payload = { score: questionScore, assertions: ASSERTIONS_UP };
   const { dispatchScore } = this.props;
   await dispatchScore(payload);
   const { score } = this.props;
