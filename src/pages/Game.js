@@ -102,16 +102,7 @@ onQuestionClick = ({ target }) => {
   }
 }
 
-modifyRannking(questionScore) {
-  // const { score } = this.props;
-  const localStArray = JSON.parse(localStorage.getItem('ranking'));
-  const lastEntrie = localStArray.length - 1;
-  localStArray[lastEntrie].score = questionScore;
-
-  localStorage.setItem('ranking', JSON.stringify(localStArray));
-}
-
-userQuestionScore(responseTime, arrayOfQuestions, questionsIndex) {
+userQuestionScore = async (responseTime, arrayOfQuestions, questionsIndex) => {
   const questionDifficulty = arrayOfQuestions[questionsIndex].difficulty;
   const questionMultiplier = { easy: 1, medium: 2, hard: 3 };
   const MINIMUM_SCORE = 10;
@@ -120,11 +111,24 @@ userQuestionScore(responseTime, arrayOfQuestions, questionsIndex) {
 
   console.log(questionScore);
   console.log(questionDifficulty);
-  this.modifyRannking(questionScore);
+
   // dipatch que salva o score
-  const { dispatchScore } = this.props;
   const payload = { score: questionScore };
-  dispatchScore(payload);
+  const { dispatchScore } = this.props;
+  await dispatchScore(payload);
+  const { score } = this.props;
+  console.log('score', score);
+
+  this.modifyRannking();
+}
+
+modifyRannking = async () => {
+  const { score } = this.props;
+  const localStArray = JSON.parse(localStorage.getItem('ranking'));
+  const lastEntrie = localStArray.length - 1;
+  localStArray[lastEntrie].score = score;
+
+  localStorage.setItem('ranking', JSON.stringify(localStArray));
 }
 
 render() {
@@ -190,7 +194,7 @@ Game.propTypes = {
   dispatchScore: PropTypes.func.isRequired,
   // gravatarEmail: PropTypes.string.isRequired,
   // name: PropTypes.string.isRequired,
-  // score: PropTypes.number.isRequired,
+  score: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = (state) => ({

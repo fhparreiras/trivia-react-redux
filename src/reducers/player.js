@@ -16,9 +16,10 @@ function player(state = INITIAL_STATE, action) {
       gravatarEmail: action.payload.email,
     };
   case ADD_DATA_SCORE:
+    // const teste = score + action.payload.score;
     return {
       ...state,
-      score: action.payload.score,
+      score: state.score + action.payload.score,
     };
   default:
     return state;
