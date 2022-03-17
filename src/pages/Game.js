@@ -4,7 +4,7 @@ import '../App.css';
 import PropTypes from 'prop-types';
 // import md5 from 'crypto-js/md5';
 import Header from '../components/Header';
-import { fetchToken, saveDataSCORE } from '../actions';
+import { fetchToken, resetScore, saveDataSCORE } from '../actions';
 
 class Game extends React.Component {
   state = {
@@ -17,6 +17,8 @@ class Game extends React.Component {
   };
 
   componentDidMount() {
+    const { dispatchResetScore } = this.props;
+    dispatchResetScore();
     const { isButtonDisabled, timer } = this.state;
     this.fetchQuestion();
     const ONE_SECOND = 1000;
@@ -208,11 +210,7 @@ render() {
               </div>
               { !isNextHidden
               && (
-                <button
-                  type="button"
-                  data-testid="btn-next"
-                  onClick={ this.onNextClick }
-                >
+                <button type="button" data-testid="btn-next" onClick={ this.onNextClick }>
                   Next
                 </button>
               )}
@@ -229,9 +227,8 @@ Game.propTypes = {
   history: PropTypes.shape({ push: PropTypes.func }).isRequired,
   fetchDispatch: PropTypes.func.isRequired,
   dispatchScore: PropTypes.func.isRequired,
-  // gravatarEmail: PropTypes.string.isRequired,
-  // name: PropTypes.string.isRequired,
   score: PropTypes.number.isRequired,
+  dispatchResetScore: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -244,6 +241,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   fetchDispatch: () => dispatch(fetchToken()),
   dispatchScore: (payload) => dispatch(saveDataSCORE(payload)),
+  dispatchResetScore: () => dispatch(resetScore()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Game);

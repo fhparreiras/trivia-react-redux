@@ -1,16 +1,23 @@
 import { getToken } from '../services/triviaAPI';
 
 export const ADD_DATA = 'ADD_DATA';
-export const ADD_DATA_SCORE = 'ADD_DATA_SCORE';
 
 export const saveData = (payload) => ({
   type: ADD_DATA,
   payload,
 });
 
+export const ADD_DATA_SCORE = 'ADD_DATA_SCORE';
+
 export const saveDataSCORE = (payload) => ({
   type: ADD_DATA_SCORE,
   payload,
+});
+
+export const RESET_SCORE = 'RESET_SCORE';
+
+export const resetScore = () => ({
+  type: RESET_SCORE,
 });
 
 // actions para lidar com a requisição à API
