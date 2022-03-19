@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import '../App.css';
 import PropTypes from 'prop-types';
-// import md5 from 'crypto-js/md5';
 import Header from '../components/Header';
 import { fetchToken, resetScore, saveDataSCORE } from '../actions';
 
@@ -19,22 +18,31 @@ class Game extends React.Component {
   componentDidMount() {
     const { dispatchResetScore } = this.props;
     dispatchResetScore();
-    const { isButtonDisabled, timer } = this.state;
+    const { isButtonDisabled } = this.state;
     this.fetchQuestion();
     const ONE_SECOND = 1000;
     // essa setInterval faz ser atualizado o estado do timer de 1 em 1 segundo para -1 segundo
     setInterval(() => {
-      if (isButtonDisabled === false && timer > 0) {
+      if (isButtonDisabled === false) {
         this.setState((prevState) => ({
           isLoading: false,
           timer: prevState.timer - 1,
         }));
       }
     }, ONE_SECOND);
-    const THIRTY_SECONDS = 30000;
-    // a setTimeout define 30 segundos para que, após eles, os botões das alternativas fiquem desabilitados
-    // através da atualização do estado "isButtoDisabled" para true
-    setTimeout(() => { this.setState({ isButtonDisabled: true }); }, THIRTY_SECONDS);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.timer === 1) {
+      this.funcTest();
+    }
+  }
+
+  funcTest = () => {
+    this.setState({
+      isButtonDisabled: true,
+      isNextHidden: false,
+    });
   }
 
 fetchQuestion = async () => { // Faz requisição a API
@@ -78,13 +86,11 @@ reloadToken = async () => { // Valida o token caso expirado;
 shuffle = (array) => { // Embaralha as alternativas;
   let currentIndex = array.length;
   let randomIndex;
-
   // While para enquanto ainda houver elementos para embaralhar...
   while (currentIndex !== 0) {
     // Pega um elemento ainda remanescente...
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex -= 1;
-
     // Troca com o elemento atual
     [array[currentIndex], array[randomIndex]] = [
       array[randomIndex], array[currentIndex]];
@@ -136,18 +142,11 @@ userQuestionScore = async (responseTime, arrayOfQuestions, questionsIndex) => {
   const MINIMUM_SCORE = 10;
   const questionScore = MINIMUM_SCORE
   + (responseTime * questionMultiplier[questionDifficulty]);
-
-  console.log(questionScore);
-  console.log(questionDifficulty);
-
   // dipatch que salva o score
   const ASSERTIONS_UP = 1;
   const payload = { score: questionScore, assertions: ASSERTIONS_UP };
   const { dispatchScore } = this.props;
   await dispatchScore(payload);
-  const { score } = this.props;
-  console.log('score', score);
-
   this.modifyRannking();
 }
 
